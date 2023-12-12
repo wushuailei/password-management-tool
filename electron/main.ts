@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'node:path'
+import server from './server'
 
 // The built directory structure
 //
@@ -24,7 +25,19 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
+    width: 1000,
+    height: 800,
   })
+
+  // 判断当前环境 如果是开发环境则打开调试工具
+  if (process.env.NODE_ENV === 'development') {
+    // Open the DevTools.
+    win.webContents.openDevTools()
+  }
+
+  // Receive message from Renderer-process.
+  // 开始接收渲染进程的消息
+  server.start()
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
