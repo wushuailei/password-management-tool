@@ -8,6 +8,8 @@ const generateSearchCondition = (params: any) => {
   Object.keys(params).forEach((key) => {
     if (key !== '_id' && key !== 'groupId' && params[key]) {
       condition[key] = { $regex: new RegExp(params[key]) };
+    } else {
+      condition[key] = params[key];
     }
   });
   return condition;
