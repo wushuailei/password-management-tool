@@ -64,7 +64,7 @@ const generateForm = (textItem: any = {}) => {
   for (const iterator of groupInfo.value.groupData) {
     formData.value[iterator.index] = textItem[iterator.index] || "";
     formRules.value[iterator.index] = [
-      { required: true, message: "请输入" + iterator.colName, trigger: "blur" },
+      { required: iterator.colRequired, message: "请输入" + iterator.colName, trigger: "blur" },
     ];
   }
 };

@@ -81,14 +81,16 @@ const handleCloseDialog = () => {
 const handleClickConfirm = async () => {
   const result = await refForm.value.validate();
   if (result === true) {
-    const data = {
-      colName: formData.colName,
-      colRequired: formData.colRequired,
-      colRequiredText: formData.colRequired ? "是" : "否",
-      colType: formData.colType,
-      colTypeText: EnumColType[formData.colType as keyof typeof EnumColType],
-      index: 'key_' + new Date().getTime()
+    const data = <any>{
+      ...formData.value,
+      colRequiredText: formData.value.colRequired ? "是" : "否",
+      colTypeText: EnumColType[formData.value.colType as keyof typeof EnumColType],
     };
+    if (formData.value.index) {
+      data.index = formData.value.index;
+    } else {
+      data.index = 'key_' + new Date().getTime()
+    }
     emits("clickConfirm", { data, dialogType: dialogConfig.dialogType, rowIndex: dialogConfig.rowIndex });
     handleCloseDialog();
   }
@@ -100,7 +102,7 @@ defineExpose({
 // 表单相关
 const refForm = ref();
 // 表单数据
-const formData = reactive({
+const formData = ref(<any>{
   colName: "",
   colRequired: 1,
   colType: "text",
@@ -118,9 +120,9 @@ const formRules = reactive({
 });
 // 设置表单数据
 const setFormData = (colInfo: any) => {
-  formData.colName = colInfo.colName;
-  formData.colRequired = colInfo.colRequired;
-  formData.colType = colInfo.colType;
+  formData.value = {
+    ...colInfo
+  }
 };
 </script>
 <style lang=""></style>

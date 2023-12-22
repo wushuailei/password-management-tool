@@ -29,8 +29,8 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-         node-version: 18
-         cache: npm # or pnpm / yarn
+          node-version: 18
+          cache: npm # or pnpm / yarn
 
         # step3: npm install
       - name: npm install
@@ -43,7 +43,12 @@ jobs:
         run: |
           npm run electron:build-win
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        with:
+          github_token: ${{ secrets.github_token }}
+          # only build on tag
+          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
       # step5: cleanup artifacts in release
       - name: cleanup artifacts

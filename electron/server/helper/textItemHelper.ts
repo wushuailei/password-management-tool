@@ -2,6 +2,17 @@ import { ipcMain } from "electron";
 import { tableDB } from "../db/db.modules.ts";
 import sm from "../../utils/sm.ts";
 
+// 生成模糊查询条件
+const generateSearchCondition = (params: any) => {
+  const condition: any = {};
+  Object.keys(params).forEach((key) => {
+    if (key !== '_id' && key !== 'groupId' && params[key]) {
+      condition[key] = { $regex: new RegExp(params[key]) };
+    }
+  });
+  return condition;
+};
+
 export default {
   // 查询文本项列表
   queryTextItemList: () => {
@@ -12,8 +23,9 @@ export default {
         const limit = params.pageSize;
         delete params.current;
         delete params.pageSize;
-        const countRes = await tableDB.count(params)
-        const dataRes = await tableDB.limit(offset, limit).sort({ createdAt: -1 }).find(params)
+        const condition = generateSearchCondition(params);
+        const countRes = await tableDB.count(condition)
+        const dataRes = await tableDB.limit(offset, limit).sort({ createdAt: -1 }).find(condition)
         const data = dataRes.map((item: any) => {
           Object.keys(item).map((key) => {
             if (item[key].encrypt) {
