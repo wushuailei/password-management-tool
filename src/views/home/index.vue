@@ -33,15 +33,16 @@
               <template #icon><t-icon name="edit" /></template>
             </t-button>
           </t-popup>
-          <t-popup content="删除组">
-            <t-button
-              variant="text"
-              shape="square"
-              @click="handleClickDelGroup"
-            >
-              <template #icon><t-icon name="delete" /></template>
-            </t-button>
-          </t-popup>
+          <t-popconfirm theme="danger" content="确认删除吗" @confirm="handleClickDelGroup">
+              <t-popup content="删除组">
+                <t-button
+                  variant="text"
+                  shape="square"
+                >
+                  <template #icon><t-icon name="delete" /></template>
+                </t-button>
+              </t-popup>
+            </t-popconfirm>
           <t-popup content="刷新组">
             <t-button
               variant="text"
@@ -57,7 +58,8 @@
 
     <!-- 组内容 -->
     <div class="group-content">
-      <GroupContent :groupData="groupData" />
+      <GroupContent v-if="currentMenuItem !== null" />
+      <t-skeleton loading v-else></t-skeleton>
     </div>
   </div>
 
@@ -68,40 +70,53 @@
   />
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, provide } from "vue";
+import { MessagePlugin } from "tdesign-vue-next";
 import GroupContent from "./components/GroupContent.vue";
 import GroupOperationDrawer from "./components/GroupOperationDrawer.vue";
-import { queryGroupList } from "@/api/group";
+import { queryGroupList, delGroup } from "@/api/group";
 
-const currentMenuItem = ref(0);
+const currentMenuItem = ref<any>(null);
 const groupList = ref(<any>[]);
 const sidebarLoading = ref(false);
 // 切换菜单
 const handleChangeMenu = (value: number) => {
   currentMenuItem.value = value;
-  groupData.value = groupList.value[value];
+  groupInfo.value = groupList.value[value];
 };
 // 添加组
 const handleClickAddGroup = () => {
-  refGroupOperationDrawer.value?.showDrawer();
+  refGroupOperationDrawer.value?.showDrawer({ drawerType: 1 });
 };
 // 编辑组
 const handleClickEditGroup = () => {
-  console.log("edit group");
+  if (currentMenuItem.value === null) {
+    MessagePlugin.warning("请选择组");
+    return;
+  }
+  refGroupOperationDrawer.value?.showDrawer({
+    ...groupList.value[currentMenuItem.value],
+    drawerType: 2,
+  });
 };
 // 删除组
 const handleClickDelGroup = () => {
-  console.log("del group");
+  if (currentMenuItem.value === null) {
+    MessagePlugin.warning("请选择组");
+    return;
+  }
+  delGroup({ _id: groupList.value[currentMenuItem.value]._id }).then(() => {
+    handleClickRefreshGroup();
+    MessagePlugin.success("删除成功");
+  });
 };
 // 刷新组列表
 const handleClickRefreshGroup = () => {
   sidebarLoading.value = true;
   queryGroupList()
     .then((res: any) => {
+      currentMenuItem.value = null
       groupList.value = res.data;
-      if (res.data.length) {
-        groupData.value = res.data[0];
-      }
     })
     .finally(() => {
       sidebarLoading.value = false;
@@ -109,7 +124,7 @@ const handleClickRefreshGroup = () => {
 };
 
 // 表格数据源
-const groupData = ref(<any>{});
+const groupInfo = ref(<any>{});
 
 // 初始化组列表
 handleClickRefreshGroup();
@@ -122,6 +137,9 @@ const onClickDrawerConfirm = () => {
   console.log("click confirm");
   handleClickRefreshGroup();
 };
+
+// 依赖注入
+provide("groupInfo", groupInfo);
 </script>
 <style lang="less" scoped>
 .home {
@@ -146,6 +164,7 @@ const onClickDrawerConfirm = () => {
     margin: 20px;
     padding: 20px;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    position: relative;
   }
 }
 </style>

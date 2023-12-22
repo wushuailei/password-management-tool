@@ -43,7 +43,8 @@
 </template>
 <script lang="ts" setup>
 import { ref, reactive, defineExpose, defineEmits } from "vue";
-import EnumColType from "../../../enums/colType.enum.ts";
+import EnumColType from "@/enums/colType.enum.ts";
+import EnumDrawerType from "@/enums/drawerType.enum.ts";
 
 const emits = defineEmits(["clickConfirm"]);
 
@@ -57,26 +58,16 @@ const dialogConfig = {
 const setDialogConfig = (colInfo: any) => {
   dialogConfig.dialogType = colInfo.dialogType;
   dialogConfig.rowIndex = typeof colInfo.rowIndex === "number" ? colInfo.rowIndex : null;
-  switch (colInfo.dialogType) {
-    case 0:
-      dialogConfig.headerTitle = "查看";
-      dialogConfig.footerShow = false;
-      setFormData(colInfo);
-      break;
-    case 1:
-      dialogConfig.headerTitle = "新增";
-      dialogConfig.footerShow = true;
-      setFormData({
-        colName: "",
-        colRequired: 1,
-        colType: "text",
-      });
-      break;
-    case 2:
-      dialogConfig.headerTitle = "编辑";
-      dialogConfig.footerShow = true;
-      setFormData(colInfo);
-      break;
+  dialogConfig.headerTitle = `${EnumDrawerType[colInfo.dialogType]}列`;
+  dialogConfig.footerShow = colInfo.dialogType !== 0;
+  if (colInfo.dialogType === 1) {
+    setFormData({
+      colName: "",
+      colRequired: 1,
+      colType: "text",
+    });
+  } else {
+    setFormData(colInfo);
   }
 };
 const showDialog = (colInfo: any) => {
@@ -96,7 +87,7 @@ const handleClickConfirm = async () => {
       colRequiredText: formData.colRequired ? "是" : "否",
       colType: formData.colType,
       colTypeText: EnumColType[formData.colType as keyof typeof EnumColType],
-      index: new Date().getTime()
+      index: 'key_' + new Date().getTime()
     };
     emits("clickConfirm", { data, dialogType: dialogConfig.dialogType, rowIndex: dialogConfig.rowIndex });
     handleCloseDialog();

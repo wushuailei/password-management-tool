@@ -15,6 +15,7 @@ release
 *.local
 
 nedb/
+sm/
 
 # Editor directories and files
 .vscode/*

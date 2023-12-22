@@ -1,24 +1,12 @@
 import router from './router/index'
-// import store from './store/index'
-// import { storage } from '@/utils/utils'
+import { computed } from 'vue'
+import { useUserStore } from '@/store/user.ts'
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
+    const userStore = useUserStore()
+    const loginStatus = computed(() => userStore.loginStatus)
+    if (to.name !== 'Login' && !loginStatus.value) {
+        next({ name: 'Login' })
+    }
     next()
-    // const token = store.getters.token || storage.sGet('token')
-    // const addRouters = store.getters.addRouters
-    // if (to.name !== 'Login' && !token) {
-    //     next({ name: 'Login' })
-    // } else {
-    //     if (addRouters.length || to.name) {
-    //         store.dispatch("SetBreadcrumbList", [to.name]);
-    //         store.dispatch("SetMenuSelectedKeys", [to.path]);
-    //         next()
-    //     } else {
-    //         store.dispatch('QueryMenus').then(() => {
-    //             next({ ...to, replace: true })
-    //         }, (err) => {
-    //             next()
-    //         })
-    //     }
-    // }
 })

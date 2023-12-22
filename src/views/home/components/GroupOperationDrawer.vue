@@ -67,13 +67,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, defineExpose } from "vue";
+import { ref, reactive, defineEmits, defineExpose } from "vue";
 import { MessagePlugin } from "tdesign-vue-next";
 import { MoveIcon } from "tdesign-icons-vue-next";
 import ColOperationDialog from "./ColOperationDialog.vue";
-import { addGroup } from "@/api/group";
+import { addGroup, editGroup } from "@/api/group";
+import EnumDrawerType from "@/enums/drawerType.enum.ts";
 
 const emits = defineEmits(["clickConfirm"]);
+
+// 默认值
+const defaultTableData = [
+  {
+    index: 'key_0',
+    colName: "用户名",
+    colType: "text",
+    colTypeText: "文本",
+    colRequired: 1,
+    colRequiredText: "是",
+  },
+  {
+    index: 'key_1',
+    colName: "密码",
+    colType: "encryptText",
+    colTypeText: "加密文本",
+    colRequired: 1,
+    colRequiredText: "是",
+  },
+  {
+    index: 'key_2',
+    colName: "备注",
+    colType: "text",
+    colTypeText: "文本",
+    colRequired: 1,
+    colRequiredText: "是",
+  },
+]
 
 const visible = ref(false);
 // 抽屉配置
@@ -82,64 +111,69 @@ const drawerConfig = reactive({
   headerTitle: "组信息",
   // 抽屉底部是否显示
   footerShow: false,
-  // 抽屉类型 0 新增 1 编辑 2 查看
+  // 抽屉类型 0 查看 1 新增 2 编辑
   drawerType: 0,
 });
 // 点击抽屉确认按钮
 const handleClickConfirm = async () => {
-  const result = await refForm.value.validate()
+  const result = await refForm.value.validate();
   if (result === true) {
-    addGroup({
-      groupName: formData.groupName,
-      groupData: tableData.value,
-    }).then(() => {
-      MessagePlugin.success("保存成功");
-      handleCloseDrawer()
-      emits('clickConfirm')
-    }).finally(() => {
-    });
+    if (drawerConfig.drawerType === 1) {
+      await addGroup({
+        groupName: formData.value.groupName,
+        groupData: tableData.value,
+      });
+    } else {
+      await editGroup({
+        _id: formData.value._id,
+        groupName: formData.value.groupName,
+        groupData: tableData.value,
+      });
+    }
+    MessagePlugin.success("操作成功");
+    handleCloseDrawer();
+    emits('clickConfirm');
   }
 };
 // 关闭抽屉
 const handleCloseDrawer = () => {
   refForm.value.reset();
+  tableData.value = defaultTableData.map(val => ({ ...val }));
   visible.value = false;
 };
 // 设置抽屉配置
 const setDrawerConfig = (groupInfo: any) => {
   drawerConfig.drawerType = groupInfo.drawerType;
-  switch (groupInfo.drawerType) {
-    case 0:
-      drawerConfig.headerTitle = "新增组";
-      drawerConfig.footerShow = true;
-      break;
-    case 1:
-      drawerConfig.headerTitle = "编辑组";
-      drawerConfig.footerShow = true;
-      break;
-    case 2:
-      drawerConfig.headerTitle = "查看组";
-      drawerConfig.footerShow = false;
-      break;
+  drawerConfig.headerTitle = `${EnumDrawerType[groupInfo.drawerType]}组`;
+  drawerConfig.footerShow = groupInfo.drawerType !== 0;
+  if (groupInfo.drawerType === 2) {
+    setData(groupInfo);
   }
-  visible.value = true;
 };
 /**
  * @function showDrawer 显示抽屉
- * @param { Number } groupInfo.drawerType 抽屉类型 0 新增 1 编辑 2 查看
+ * @param { Number } groupInfo.drawerType 抽屉类型 0 查看 1 新增 2 编辑
  */
 const showDrawer = (groupInfo = { drawerType: 0 }) => {
   setDrawerConfig(groupInfo);
+  visible.value = true;
 };
 
 defineExpose({
   showDrawer,
 });
 
+// 设置表单数据和表格数据
+const setData = (groupInfo: any) => {
+  formData.value = { ...groupInfo };
+  tableData.value = groupInfo.groupData;
+};
+
 // 表单相关
 const refForm = ref();
 // 表单数据
-const formData = reactive({
+const formData = ref({
+  _id: "",
   groupName: "",
 });
 // 表单校验规则
@@ -152,32 +186,7 @@ const formRules = reactive({
 
 // 表格相关
 // 表格数据
-const tableData = ref([
-  {
-    index: 0,
-    colName: "用户名",
-    colType: "text",
-    colTypeText: "文本",
-    colRequired: 1,
-    colRequiredText: "是",
-  },
-  {
-    index: 1,
-    colName: "密码",
-    colType: "encryptText",
-    colTypeText: "加密文本",
-    colRequired: 1,
-    colRequiredText: "是",
-  },
-  {
-    index: 2,
-    colName: "备注",
-    colType: "text",
-    colTypeText: "文本",
-    colRequired: 1,
-    colRequiredText: "是",
-  },
-]);
+const tableData = ref(defaultTableData.map(val => ({ ...val })));
 // 表格列配置项
 const tableColumns = ref([
   {

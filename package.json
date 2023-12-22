@@ -1,14 +1,19 @@
 {
-  "name": "password-management-tool",
+  "name": "tai-ji-seal",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build && electron-builder",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron:generate-icons": "electron-icon-builder --input=./public/icon.png --output=public --flatten"
   },
   "dependencies": {
+    "dayjs": "^1.11.10",
+    "electron-icon-builder": "^2.0.1",
     "nedb": "^1.8.0",
+    "pinia": "^2.1.7",
+    "sm-crypto": "^0.3.13",
     "tdesign-vue-next": "^1.7.1",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5"

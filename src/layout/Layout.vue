@@ -3,6 +3,11 @@
     <t-header>
       <t-head-menu theme="light" value="item1" height="120px">
         <template #operations>
+          <t-popup content="首页">
+            <t-button variant="text" shape="square" @click="handleClickHome">
+              <template #icon><t-icon name="home" /></template>
+            </t-button>
+          </t-popup>
           <t-popup content="个人页">
             <t-button variant="text" shape="square" @click="handleClickUser">
               <template #icon><t-icon name="user" /></template>
@@ -22,13 +27,23 @@
   </t-layout>
 </template>
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/store/user';
+
+const router = useRouter()
+const userStore = useUserStore()
+
+const handleClickHome = () => {
+  router.push('/')
+}
 
 const handleClickUser = () => {
-  console.log('click user');
+  router.push('/user')
 }
 
 const handleClickLogout = () => {
-  console.log('click logout');
+  userStore.logout()
+  router.push('/login')
 }
 
 </script>

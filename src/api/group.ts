@@ -12,3 +12,15 @@ export function queryGroupList () {
 export function addGroup (params: object) {
     return request('addGroup', params)
 }
+/**
+ * @function editGroup 编辑组
+ */
+export function editGroup (params: object) {
+    return request('editGroup', params)
+}
+/**
+ * @function delGroup 删除组
+ */
+export function delGroup (params: object) {
+    return request('delGroup', params)
+}

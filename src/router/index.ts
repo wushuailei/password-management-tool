@@ -3,8 +3,9 @@ import Home from "../views/home/index.vue";
 import Login from "../views/Login.vue";
 
 const routes = [
-  { path: "/", component: Home },
-  { path: "/Login", component: Login },
+  { path: "/", name: 'Home', component: Home },
+  { path: "/login", name: 'Login', component: Login },
+  { path: '/user', name: 'User', component: () => import('../views/user/index.vue') },
 ];
 
 const router = createRouter({
