@@ -7,7 +7,7 @@
   "asar": true,
   "productName": "TaiJi-Seal",
   "directories": {
-    "output": "release/${version}"
+    "output": "release"
   },
   "files": [
     "dist",
@@ -17,7 +17,7 @@
     "target": [
       "dmg"
     ],
-    "artifactName": "${productName}-Mac-${version}-Installer.${ext}",
+    "artifactName": "${productName}-Mac-Installer.${ext}",
     "icon": "public/icons/icon.icns"
   },
   "win": {
@@ -29,7 +29,7 @@
         ]
       }
     ],
-    "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
+    "artifactName": "${productName}-Windows-Setup.${ext}",
     "icon": "public/icons/icon.ico"
   },
   "nsis": {
@@ -42,6 +42,6 @@
     "target": [
       "AppImage"
     ],
-    "artifactName": "${productName}-Linux-${version}.${ext}"
+    "artifactName": "${productName}-Linux.${ext}"
   }
 }
