@@ -39,11 +39,13 @@ jobs:
         if: matrix.os == 'windows-2019'
         run: |
           npm run electron:build-win
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       # step5: cleanup artifacts in release
       - name: cleanup artifacts
         run: |
-          npx rimraf "release/!(*.exe|*.dmg)"
+          npx rimraf "release/!(*.exe)"
 
       # step6: upload artifacts
       - name: upload artifacts
